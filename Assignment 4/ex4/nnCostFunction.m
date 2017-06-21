@@ -146,35 +146,72 @@ J = J + (lambda / (2 *m )) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:
   % Part 1:
   % Set a(t) = x(t) and perform forwad propagation.
   % Don't forget to add bias unit with [1 <vector>]
-  a1 = X; % X already has bias unit from earlier use (5000 x 401)
+  Activation_layer_1 = X; % X already has bias unit from earlier use (5000 x 401)
 
-  z2 = a1 * Theta1'; % 5000 x 25
-  a2 = [ones(m, 1) sigmoid(z2)]; % 5000 x 26
-  z3 = a2 * Theta2'; % 5000 x 10
-  a3 = sigmoid(z3); % 5000 x 10
+  Z_layer_2 = Activation_layer_1 * Theta1'; % 5000 x 25
+  Activation_layer_2 = [ones(m, 1) sigmoid(Z_layer_2)]; % 5000 x 26
+  Z_layer_3 = Activation_layer_2 * Theta2'; % 5000 x 10
+  Activation_layer_3 = sigmoid(Z_layer_3); % 5000 x 10
 
   % Part 2:
   % For each output in the final layer, find the margin of error with
-  % the variable delta, our "error term"
+  % the variable 'delta', our "error term"
 
-  D3 = a3 - Y; % (5000 x 10)
+  % See how bad we did for the output layer. Just do a difference of values from
+  % our output to our answers (y)
+  Delta_layer_3 = Activation_layer_3 - Y; % (5000 x 10)
 
   % Part 3:
+  % See how bad we did for our hidden layers. We can't just compare these to
+  % our Y value because they're not based on the final output. We'll have to
+  % "backtrack" to figure out our margin of error for our hidden layers. A good
+  % way of thinking about this is with this scenario: "We see our margin of error
+  % for our output layers by comparing their answers to our answer-book 'y'. We
+  % get the differences here. If the differences are extremely small, then our margin
+  % of error for our output layer is small. If we have some neurons that have
+  % a large margin of error, then we messed up! The only person to blame right
+  % now is the previous neuron(s) that gave this bad neuron its bad answer. We
+  % must penalize them"
+  % "In order to penalize them, we let these previous neurons know how bad
+  % THEY did by showing them the margin of error that we got based on their
+  % inputs to us ('us' being the output layer. We share with them how bad we
+  % did by giving them their weights multiplied by our margin of error, and multiply
+  % this by the derivative sigmoid function". This process goes on until we
+  % get to the last hidden layer, which is going to be Layer #2.
+
   % Set the remaining deltas per layer with their respective calculations
   % first product is (5000 x 25), second product is (5000 x 25)
-  D2 = (D3 * Theta2(:, 2:end)) .* sigmoidGradient(z2); % (5000 x 25)
+  Delta_layer_2 = (Delta_layer_3 * Theta2(:, 2:end)) .* sigmoidGradient(Z_layer_2); % (5000 x 25)
 
   % Part 4:
-  % Accumulate the gradient from this example using
+  % Now we accumulate our margins of error into one big vector for each layer.
+  % we cann this the delta accumulator. For each layer, it gets our calculated
+  % margin of error vector for said layer and multiplies it by our activation
+  % layer. We start our accumulator layer in layer 1, and proceed until we get
+  % to to second last layer (we're not including the output layer here), so that
+  % is layer L (in this case, that's just layer 1 and layer 2).
 
   % (25 x 5000) * (5000 x 401)
-  Delta1 = D2' * a1; % (25 x 401)
+  % This will be size (25 x 401), as in, it is an average of all the training
+  % examples for each neuron unit (25) with each pixel (401). We'll balance out
+  % this average by multiplying it by (1/m) later on
+  Delta_accumulator_layer_1 = Delta_layer_2' * Activation_layer_1; % (25 x 401)
 
   % (10 x 5000) * (5000 x 26)
-  Delta2 = D3' * a2; %(10 x 26)
+  Delta_accumulator_layer_2 = Delta_layer_3' * Activation_layer_2; %(10 x 26)
 
-  Theta1_grad = (1 / m) * Delta1;
-  Theta2_grad = (1 / m) * Delta2;
+  % Once we get these two delta accumlator layers, we average it out with all of
+  % our training examples. This becomes the derivative of J with respect to theta
+  % for each layer (think of J derivatives per layer). The derivative of J
+  % is D, which is (1/m) * delta_accumulator, which is delta * a, where delta
+  % is (previous_delta * theta) .* g', until our last 'previous_delta' is
+  % (a - y) [this is a pure literary description of what's going on. See
+  % notes taken to get a better understanding. It's looking at all the steps
+  % for backpropagation in reverse].
+
+  % We rename these as 'Theta1_grad' and 'Theta2_grad'
+  Theta1_grad = (1 / m) * Delta_accumulator_layer_1;
+  Theta2_grad = (1 / m) * Delta_accumulator_layer_2;
 
 % Part 3: Backpropagation with Regularization
 % -------------------------------------------
