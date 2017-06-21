@@ -209,9 +209,14 @@ J = J + (lambda / (2 *m )) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:
   % notes taken to get a better understanding. It's looking at all the steps
   % for backpropagation in reverse].
 
-  % We rename these as 'Theta1_grad' and 'Theta2_grad'
-  Theta1_grad = (1 / m) * Delta_accumulator_layer_1;
-  Theta2_grad = (1 / m) * Delta_accumulator_layer_2;
+  % We rename these as 'Theta1_grad' and 'Theta2_grad'. As always, for
+  % regularization, we don't apply the bias layers, so we don't regularize
+  % j = 0 (or j = 1 in MATLAB's case), while regularizing the rest of the indices
+  Theta1_grad(:, 1) = (1 / m) * Delta_accumulator_layer_1(:, 1);
+  Theta1_grad(:, 2:end) = ((1 / m) * Delta_accumulator_layer_1(:, 2:end)) + ((lambda / m) * (Theta1(:, 2:end)));
+
+  Theta2_grad(:, 1) = (1 / m) * Delta_accumulator_layer_2(:, 1);
+  Theta2_grad(:, 2:end) = ((1 / m) * Delta_accumulator_layer_2(:, 2:end)) + ((lambda / m) * (Theta2(:, 2:end)));
 
 % Part 3: Backpropagation with Regularization
 % -------------------------------------------
