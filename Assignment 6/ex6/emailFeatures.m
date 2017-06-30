@@ -48,13 +48,9 @@ x = zeros(n, 1);
 %
 %
 
-
-
-
-
-
-
-
+% finds whether the values of word_indices match the indices of the vector x.
+% Turns those indices into 1s.
+x(word_indices) = 1;
 % =========================================================================
     
 

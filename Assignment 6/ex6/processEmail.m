@@ -97,15 +97,10 @@ while ~isempty(email_contents)
     %       str2). It will return 1 only if the two strings are equivalent.
     %
 
-
-
-
-
-
-
-
-
-
+    % the find() looks for the index(es) of the condition you input. If you have
+    % a vector v = [12, 34, 45] and do find(v == 34), it will return '2' (1-indexed)
+    index = find(strcmp(vocabList, str));
+    word_indices = [word_indices; index];
     % =============================================================
 
 

@@ -25,7 +25,7 @@ sigma = 0.3;
 
 C_vals = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
 sigma_vals = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
-prediction_error = inf;
+lowest_prediction_error = inf;
 
 % Iterate through all varations of C and all variations of sigma to find
 % the lowest prediction error. The lowest prediction error shows the best
@@ -38,10 +38,10 @@ for ci = 1:length(C_vals)
 
     model = svmTrain(X, y, C_current, @(x1, x2) gaussianKernel(x1, x2, sigma_current));
     predictions = svmPredict(model, Xval);
-    prediction_error_current = mean(double(predictions ~= yval));
+    current_prediction_error = mean(double(predictions ~= yval));
 
-    if prediction_error_current < prediction_error
-      prediction_error = prediction_error_current;
+    if current_prediction_error < lowest_prediction_error
+      lowest_prediction_error = current_prediction_error;
       C = C_current;
       sigma = sigma_current;
     end
