@@ -217,10 +217,6 @@ J = J + (lambda / (2 *m )) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:
 
   Theta2_grad(:, 1) = (1 / m) * Delta_accumulator_layer_2(:, 1);
   Theta2_grad(:, 2:end) = ((1 / m) * Delta_accumulator_layer_2(:, 2:end)) + ((lambda / m) * (Theta2(:, 2:end)));
-
-% Part 3: Backpropagation with Regularization
-% -------------------------------------------
-
 % =========================================================================
 
 % Unroll gradients
